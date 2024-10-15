@@ -1,5 +1,3 @@
-import React from "react";
-
 const useCanvas = ({
   canvasRef,
   width,
@@ -62,56 +60,56 @@ const useCanvas = ({
     };
   };
 
-  // const getCanvasCoordinates = (e) => {
-  //   const { canvas } = getCanvas();
-  //   const rect = canvas.getBoundingClientRect();
+  const getCanvasCoordinates = (e) => {
+    const { canvas } = getCanvas();
+    const rect = canvas.getBoundingClientRect();
 
-  //   const offsetX = e.clientX - rect.left / scale;
-  //   const offsetY = e.clientY - rect.top / scale;
+    const offsetX = (e.clientX - rect.left) / scale;
+    const offsetY = (e.clientY - rect.top) / scale;
 
-  //   return { offsetX, offsetY };
-  // };
+    return { offsetX, offsetY };
+  };
 
-  // const rotatePoint = (x, y, angle, centerX, centerY) => {
-  //   const radians = (angle * Math.PI) / 180;
-  //   const cos = Math.cos(radians);
-  //   const sin = Math.sin(radians);
-  //   const dx = x - centerX;
-  //   const dy = y - centerY;
+  const rotatePoint = (x, y, angle, centerX, centerY) => {
+    const radians = (angle * Math.PI) / 180;
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    const dx = x - centerX;
+    const dy = y - centerY;
 
-  //   return {
-  //     x: dx * cos - dy * sin + centerX,
-  //     y: dx * sin + dy * cos + centerY,
-  //   };
-  // };
+    return {
+      x: dx * cos - dy * sin + centerX,
+      y: dx * sin + dy * cos + centerY,
+    };
+  };
 
-  // const getSvgCoordinates = (e) => {
-  //   const { canvas } = getCanvas();
-  //   const rect = canvas.getBoundingClientRect();
+  const getSvgCoordinates = (e) => {
+    const { canvas } = getCanvas();
+    const rect = canvas.getBoundingClientRect();
 
-  //   const mouseX = (e.clientX - rect.left) / scale;
-  //   const mouseY = (e.clientY - rect.top) / scale;
+    const mouseX = (e.clientX - rect.left) / scale;
+    const mouseY = (e.clientY - rect.top) / scale;
 
-  //   const centerX = canvas.width / 2;
-  //   const centerY = canvas.height / 2;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
 
-  //   const { x: offsetSvgX, y: offsetSvgY } = rotatePoint(
-  //     mouseX,
-  //     mouseY,
-  //     -rotate,
-  //     centerX,
-  //     centerY
-  //   );
+    const { x: offsetSvgX, y: offsetSvgY } = rotatePoint(
+      mouseX,
+      mouseY,
+      -rotate,
+      centerX,
+      centerY
+    );
 
-  //   return { offsetSvgX, offsetSvgY };
-  // };
+    return { offsetSvgX, offsetSvgY };
+  };
 
   return {
     loadImage,
     getCanvas,
     imageSetup,
-    // getCanvasCoordinates,
-    // getSvgCoordinates,
+    getCanvasCoordinates,
+    getSvgCoordinates,
   };
 };
 export default useCanvas;

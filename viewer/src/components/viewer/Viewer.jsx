@@ -18,32 +18,35 @@ const Viewer = () => {
   const [isMove, setIsMove] = useState(true);
   const [isDrawRect, setIsDrawRect] = useState(false);
 
-  const getCanvasCoordinates = (e) => {
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-
-    const offsetX = (e.clientX - rect.left) / scaleValue;
-    const offsetY = (e.clientY - rect.top) / scaleValue;
-
-    return { offsetX, offsetY };
-  };
-
-  const { handleStartMove, handleMove, handleStopMove, viewPosRef } =
-    useMovements({
-      canvasRef: canvasRef,
-      useImg: imageRef.current,
-      scale: scaleValue,
-      coordinates: getCanvasCoordinates,
-      rotate: rotateValue,
-      setTransCoord: setTransCoord,
-    });
+  const {
+    handleStartMove,
+    handleMove,
+    handleStopMove,
+    handleRotate,
+    handleZoom,
+    handleNext,
+    handlePrev,
+    viewPosRef,
+    handleWheel,
+    checkWheel,
+  } = useMovements({
+    canvasRef: canvasRef,
+    useImg: imageRef.current,
+    images: images,
+    currentImg: currentImg,
+    setCurrentImg: setCurrentImg,
+    scale: scaleValue,
+    setScale: setScaleValue,
+    rotate: rotateValue,
+    setRotate: setRotateValue,
+    setTransCoord: setTransCoord,
+  });
 
   const { drawStartRect, drawRect, drawEndRect, saveRect } = useDrawCanvas({
     canvasRef: canvasRef,
     useImg: imageRef.current,
     currentImg: currentImg,
     scale: scaleValue,
-    coordinates: getCanvasCoordinates,
     viewPosition: viewPosRef.current,
     rotate: rotateValue,
   });
@@ -62,7 +65,7 @@ const Viewer = () => {
 
   useEffect(() => {
     loadImage();
-  });
+  }, [rotateValue, currentImg]);
 
   return (
     <div>
@@ -80,7 +83,7 @@ const Viewer = () => {
             position: "relative",
             width: "1920px",
             height: "1080px",
-            // transform: `scale(${scaleValue})`,
+            transform: `scale(${scaleValue})`,
           }}
         >
           <canvas
@@ -91,11 +94,15 @@ const Viewer = () => {
             }}
             onMouseMove={(e) => {
               isMove && handleMove(e);
+              checkWheel(e);
               isDrawRect && drawRect(e);
             }}
             onMouseUp={(e) => {
               isMove && handleStopMove(e);
               isDrawRect && drawEndRect(e);
+            }}
+            onWheel={(e) => {
+              handleWheel(e);
             }}
           ></canvas>
           <svg
@@ -136,6 +143,38 @@ const Viewer = () => {
           }}
         >
           {isDrawRect ? "Stop Rect" : "Start Rect"}
+        </button>
+        <button onClick={handleNext}>Next</button>
+        <button onClick={handlePrev}>Prev</button>
+        <button
+          onClick={() => {
+            handleZoom(1);
+          }}
+          disabled={scaleValue >= 40}
+        >
+          zoom in
+        </button>
+        <button
+          onClick={() => {
+            handleZoom(-1);
+          }}
+          disabled={scaleValue <= 1}
+        >
+          zoom out
+        </button>
+        <button
+          onClick={() => {
+            handleRotate(30);
+          }}
+        >
+          rotate +30
+        </button>
+        <button
+          onClick={() => {
+            handleRotate(-30);
+          }}
+        >
+          rotate -30
         </button>
       </div>
     </div>

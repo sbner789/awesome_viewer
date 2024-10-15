@@ -8,7 +8,6 @@ const useDrawCanvas = ({
   useImg,
   currentImg,
   scale,
-  coordinates,
   viewPosition,
   rotate,
 }) => {
@@ -17,45 +16,17 @@ const useDrawCanvas = ({
   const rectPosRef = useRef(defaultPosition);
   const svgRectCoordRef = useRef(defaultPosition);
 
-  const rotatePoint = (x, y, angle, centerX, centerY) => {
-    const radians = (angle * Math.PI) / 180;
-    const cos = Math.cos(radians);
-    const sin = Math.sin(radians);
-    const dx = x - centerX;
-    const dy = y - centerY;
-
-    return {
-      x: dx * cos - dy * sin + centerX,
-      y: dx * sin + dy * cos + centerY,
-    };
-  };
-
-  const getSvgCoordinates = (e) => {
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-
-    const mouseX = (e.clientX - rect.left) / scale;
-    const mouseY = (e.clientY - rect.top) / scale;
-
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-
-    const { x: offsetSvgX, y: offsetSvgY } = rotatePoint(
-      mouseX,
-      mouseY,
-      -rotate,
-      centerX,
-      centerY
-    );
-
-    return { offsetSvgX, offsetSvgY };
-  };
+  const { getCanvas, imageSetup, getCanvasCoordinates, getSvgCoordinates } =
+    useCanvas({
+      canvasRef: canvasRef,
+      scale: scale,
+      rotate: rotate,
+    });
 
   const drawStartRect = (e) => {
-    const { offsetX, offsetY } = coordinates(e);
+    const { offsetX, offsetY } = getCanvasCoordinates(e);
     const { offsetSvgX, offsetSvgY } = getSvgCoordinates(e);
 
-    console.log("hello");
     isDrawingRectRef.current = true;
     rectPosRef.current = {
       x: offsetX,
@@ -65,35 +36,23 @@ const useDrawCanvas = ({
       x: offsetSvgX,
       y: offsetSvgY,
     };
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+
+    const { context } = getCanvas();
     context.beginPath();
   };
 
   const drawRect = (e) => {
     if (!isDrawingRectRef.current) return;
-    const { offsetX, offsetY } = coordinates(e);
-
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
+    const { offsetX, offsetY } = getCanvasCoordinates(e);
+    const { context } = getCanvas();
 
     requestAnimationFrame(() => {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.save();
-      context.setTransform(1, 0, 0, 1, viewPosition.x, viewPosition.y);
-      context.translate(canvas.width / 2, canvas.height / 2);
-      context.rotate((rotate * Math.PI) / 180);
-      context.drawImage(
-        useImg,
-        -imgWidth / 2,
-        -imgHeight / 2,
-        imgWidth,
-        imgHeight
-      );
-      context.restore();
+      imageSetup({
+        viewX: viewPosition.x,
+        viewY: viewPosition.y,
+        rotate: rotate,
+        img: useImg,
+      });
       context.save();
       context.strokeStyle = "red";
       context.strokeRect(
@@ -114,7 +73,7 @@ const useDrawCanvas = ({
   };
 
   const drawConvertToSVG = (e) => {
-    const { offsetX, offsetY } = coordinates(e);
+    const { offsetX, offsetY } = getCanvasCoordinates(e);
     const svgPathX = rectPosRef.current.x;
     const svgPathY = rectPosRef.current.y;
     const svgRotatePathX = svgRectCoordRef.current.x;
