@@ -91,10 +91,10 @@ const Viewer = () => {
             onMouseDown={(e) => {
               isMove && handleStartMove(e);
               isDrawRect && drawStartRect(e);
+              // checkWheel(e);
             }}
             onMouseMove={(e) => {
               isMove && handleMove(e);
-              checkWheel(e);
               isDrawRect && drawRect(e);
             }}
             onMouseUp={(e) => {

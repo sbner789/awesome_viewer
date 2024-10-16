@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useCanvas from "../canvas/useCanvas";
 
 const defaultPosition = { x: 0, y: 0 };
@@ -18,6 +18,8 @@ const useMovements = ({
   const panningRef = useRef(false);
   const viewPosRef = useRef(defaultPosition);
   const startPosRef = useRef(defaultPosition);
+  const wheelStartRef = useRef(defaultPosition);
+  const [startWheel, setStartWheel] = useState(defaultPosition);
 
   const { getCanvas, imageSetup, getCanvasCoordinates } = useCanvas({
     canvasRef: canvasRef,
@@ -58,7 +60,7 @@ const useMovements = ({
 
   const checkWheel = (e) => {
     const { offsetX, offsetY } = getCanvasCoordinates(e);
-    startPosRef.current = {
+    wheelStartRef.current = {
       x: offsetX - viewPosRef.current.x,
       y: offsetY - viewPosRef.current.y,
     };
@@ -66,29 +68,19 @@ const useMovements = ({
 
   const handleWheel = (e) => {
     const { offsetX, offsetY } = getCanvasCoordinates(e);
+    console.log({ offsetX }, { offsetY });
     const deltaY = -e.deltaY;
 
-    if (deltaY > 0 && scale < 40) {
-      setScale((prev) => prev + 1);
-    } else if (deltaY < 0 && scale > 1) {
-      setScale((prev) => prev - 1);
-    } else if (deltaY < 0 && (scale = 1)) {
-      setScale(1);
-    }
-    if (scale > 1 && scale < 41) {
+    const newScale = deltaY < 0 ? scale * 1.05 : scale / 1.05;
+
+    if (newScale >= 1 && newScale <= 40) {
+      setScale(newScale);
       viewPosRef.current = {
-        x: offsetX - startPosRef.current.x,
-        y: offsetY - startPosRef.current.y,
+        x: offsetX - offsetX,
+        y: offsetY - offsetY,
       };
-      console.log(
-        { offsetX },
-        { offsetY },
-        "viewX",
-        viewPosRef.current.x,
-        "viewY",
-        viewPosRef.current.y
-      );
     }
+
     requestAnimationFrame(() => {
       imageSetup({
         viewX: viewPosRef.current.x,
