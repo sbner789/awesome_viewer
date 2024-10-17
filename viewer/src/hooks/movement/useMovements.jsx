@@ -18,8 +18,8 @@ const useMovements = ({
   const panningRef = useRef(false);
   const viewPosRef = useRef(defaultPosition);
   const startPosRef = useRef(defaultPosition);
-  const wheelStartRef = useRef(defaultPosition);
-  const [startWheel, setStartWheel] = useState(defaultPosition);
+  const wheelPanningRef = useRef(false);
+  const checkWheelRef = useRef(defaultPosition);
 
   const { getCanvas, imageSetup, getCanvasCoordinates } = useCanvas({
     canvasRef: canvasRef,
@@ -59,40 +59,41 @@ const useMovements = ({
   };
 
   const checkWheel = (e) => {
-    const { offsetX, offsetY } = getCanvasCoordinates(e);
-    wheelStartRef.current = {
-      x: offsetX - viewPosRef.current.x,
-      y: offsetY - viewPosRef.current.y,
-    };
+    // const { offsetX, offsetY } = getCanvasCoordinates(e);
+    // checkWheelRef.current = {
+    //   x: offsetX - viewPosRef.current.x,
+    //   y: offsetY - viewPosRef.current.y,
+    // };
+    // wheelPanningRef.current = true;
+    console.log("hello i'm check");
   };
 
   const handleWheel = (e) => {
-    const { offsetX, offsetY } = getCanvasCoordinates(e);
-    console.log({ offsetX }, { offsetY });
-    const deltaY = -e.deltaY;
+    console.log("hello i'm handle");
+    // if (!wheelPanningRef.current) return;
+    // const { offsetX, offsetY } = getCanvasCoordinates(e);
+    // const deltaY = -e.deltaY;
+    // const wheelScale = deltaY > 0 ? scale * 1.02 : scale / 1.02;
 
-    const newScale = deltaY < 0 ? scale * 1.05 : scale / 1.05;
-
-    if (newScale >= 1 && newScale <= 40) {
-      setScale(newScale);
-      viewPosRef.current = {
-        x: offsetX - offsetX,
-        y: offsetY - offsetY,
-      };
-    }
-
-    requestAnimationFrame(() => {
-      imageSetup({
-        viewX: viewPosRef.current.x,
-        viewY: viewPosRef.current.y,
-        rotate: rotate,
-        img: useImg,
-      });
-      setTransCoord({
-        x: viewPosRef.current.x,
-        y: viewPosRef.current.y,
-      });
-    });
+    // if (wheelScale >= 1 && wheelScale <= 40) {
+    //   setScale(wheelScale);
+    //   viewPosRef.current = {
+    //     x: offsetX - checkWheelRef.current.x,
+    //     y: offsetY - checkWheelRef.current.y,
+    //   };
+    // }
+    // requestAnimationFrame(() => {
+    //   imageSetup({
+    //     viewX: viewPosRef.current.x,
+    //     viewY: viewPosRef.current.y,
+    //     rotate: rotate,
+    //     img: useImg,
+    //   });
+    //   setTransCoord({
+    //     x: viewPosRef.current.x,
+    //     y: viewPosRef.current.y,
+    //   });
+    // });
   };
 
   const handleStopMove = () => {

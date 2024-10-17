@@ -88,6 +88,9 @@ const Viewer = () => {
         >
           <canvas
             ref={canvasRef}
+            // onMouseOver={() => {
+            //   console.log("hello");
+            // }}
             onMouseDown={(e) => {
               isMove && handleStartMove(e);
               isDrawRect && drawStartRect(e);
@@ -96,12 +99,14 @@ const Viewer = () => {
             onMouseMove={(e) => {
               isMove && handleMove(e);
               isDrawRect && drawRect(e);
+              // checkWheel(e);
             }}
             onMouseUp={(e) => {
               isMove && handleStopMove(e);
               isDrawRect && drawEndRect(e);
             }}
             onWheel={(e) => {
+              checkWheel(e);
               handleWheel(e);
             }}
           ></canvas>
