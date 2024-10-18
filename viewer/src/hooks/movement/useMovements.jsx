@@ -18,10 +18,11 @@ const useMovements = ({
   const panningRef = useRef(false);
   const viewPosRef = useRef(defaultPosition);
   const startPosRef = useRef(defaultPosition);
-  const wheelPanningRef = useRef(false);
   const checkWheelRef = useRef(defaultPosition);
+  const prevCheckRef = useRef(defaultPosition);
+  const prevViewRef = useRef(defaultPosition);
 
-  const { getCanvas, imageSetup, getCanvasCoordinates } = useCanvas({
+  const { imageSetup, getCanvasCoordinates } = useCanvas({
     canvasRef: canvasRef,
     scale: scale,
   });
@@ -58,42 +59,60 @@ const useMovements = ({
     });
   };
 
-  const checkWheel = (e) => {
-    // const { offsetX, offsetY } = getCanvasCoordinates(e);
-    // checkWheelRef.current = {
-    //   x: offsetX - viewPosRef.current.x,
-    //   y: offsetY - viewPosRef.current.y,
-    // };
-    // wheelPanningRef.current = true;
-    console.log("hello i'm check");
-  };
-
   const handleWheel = (e) => {
-    console.log("hello i'm handle");
-    // if (!wheelPanningRef.current) return;
-    // const { offsetX, offsetY } = getCanvasCoordinates(e);
-    // const deltaY = -e.deltaY;
-    // const wheelScale = deltaY > 0 ? scale * 1.02 : scale / 1.02;
+    const { offsetX, offsetY } = getCanvasCoordinates(e);
 
-    // if (wheelScale >= 1 && wheelScale <= 40) {
-    //   setScale(wheelScale);
-    //   viewPosRef.current = {
-    //     x: offsetX - checkWheelRef.current.x,
-    //     y: offsetY - checkWheelRef.current.y,
-    //   };
-    // }
-    // requestAnimationFrame(() => {
-    //   imageSetup({
-    //     viewX: viewPosRef.current.x,
-    //     viewY: viewPosRef.current.y,
-    //     rotate: rotate,
-    //     img: useImg,
-    //   });
-    //   setTransCoord({
-    //     x: viewPosRef.current.x,
-    //     y: viewPosRef.current.y,
-    //   });
-    // });
+    const deltaY = -e.deltaY;
+    const wheelScale = deltaY > 0 ? scale * 1.02 : scale / 1.02;
+
+    prevCheckRef.current = {
+      x: checkWheelRef.current.x,
+      y: checkWheelRef.current.y,
+    };
+
+    checkWheelRef.current = {
+      x: offsetX - viewPosRef.current.x,
+      y: offsetY - viewPosRef.current.y,
+    };
+
+    console.log(
+      "prevX",
+      prevCheckRef.current.x,
+      "prevY",
+      prevCheckRef.current.y,
+      "checkX",
+      checkWheelRef.current.x,
+      "checkY",
+      checkWheelRef.current.y,
+      "viewX",
+      viewPosRef.current.x,
+      "viewY",
+      viewPosRef.current.y
+    );
+
+    if (wheelScale >= 1 && wheelScale <= 40) {
+      setScale(wheelScale);
+      // let finalX = offsetX + checkWheelRef.current.x;
+      // let finalY = offsetY + checkWheelRef.current.y;
+
+      viewPosRef.current = {
+        x: offsetX - checkWheelRef.current.x,
+        y: offsetY - checkWheelRef.current.y,
+      };
+    }
+
+    requestAnimationFrame(() => {
+      imageSetup({
+        viewX: viewPosRef.current.x,
+        viewY: viewPosRef.current.y,
+        rotate: rotate,
+        img: useImg,
+      });
+      setTransCoord({
+        x: viewPosRef.current.x,
+        y: viewPosRef.current.y,
+      });
+    });
   };
 
   const handleStopMove = () => {
@@ -130,7 +149,6 @@ const useMovements = ({
     handlePrev,
     viewPosRef,
     handleWheel,
-    checkWheel,
   };
 };
 export default useMovements;

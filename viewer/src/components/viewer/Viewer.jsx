@@ -28,7 +28,6 @@ const Viewer = () => {
     handlePrev,
     viewPosRef,
     handleWheel,
-    checkWheel,
   } = useMovements({
     canvasRef: canvasRef,
     useImg: imageRef.current,
@@ -88,25 +87,19 @@ const Viewer = () => {
         >
           <canvas
             ref={canvasRef}
-            // onMouseOver={() => {
-            //   console.log("hello");
-            // }}
             onMouseDown={(e) => {
               isMove && handleStartMove(e);
               isDrawRect && drawStartRect(e);
-              // checkWheel(e);
             }}
             onMouseMove={(e) => {
               isMove && handleMove(e);
               isDrawRect && drawRect(e);
-              // checkWheel(e);
             }}
             onMouseUp={(e) => {
               isMove && handleStopMove(e);
               isDrawRect && drawEndRect(e);
             }}
             onWheel={(e) => {
-              checkWheel(e);
               handleWheel(e);
             }}
           ></canvas>
