@@ -9,6 +9,7 @@ const defaultPosition = { x: 0, y: 0 };
 
 const Viewer = () => {
   const canvasRef = useRef(null);
+  const wheelRef = useRef(null);
   const imageRef = useRef(new Image());
   const images = [img1, img2]; // test images, later use api data.
   const [transCoord, setTransCoord] = useState(defaultPosition);
@@ -30,6 +31,7 @@ const Viewer = () => {
     handleWheel,
   } = useMovements({
     canvasRef: canvasRef,
+    moveRef: wheelRef.current,
     useImg: imageRef.current,
     images: images,
     currentImg: currentImg,
@@ -78,11 +80,16 @@ const Viewer = () => {
         }}
       >
         <div
+          ref={wheelRef}
           style={{
             position: "relative",
             width: "1920px",
             height: "1080px",
             transform: `scale(${scaleValue})`,
+            transition: "transform 0.1s ease",
+          }}
+          onWheel={(e) => {
+            handleWheel(e);
           }}
         >
           <canvas
@@ -99,9 +106,9 @@ const Viewer = () => {
               isMove && handleStopMove(e);
               isDrawRect && drawEndRect(e);
             }}
-            onWheel={(e) => {
-              handleWheel(e);
-            }}
+            // onWheel={(e) => {
+            //   handleWheel(e);
+            // }}
           ></canvas>
           <svg
             width={1920}
