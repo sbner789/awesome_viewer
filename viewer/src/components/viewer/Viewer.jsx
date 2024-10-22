@@ -4,12 +4,25 @@ import img2 from "../../test_images/won-young.jpg";
 import useCanvas from "../../hooks/canvas/useCanvas";
 import useDrawCanvas from "../../hooks/draw/useDrawCanvas";
 import useMovements from "../../hooks/movement/useMovements";
+import "./test.css";
 
 const defaultPosition = { x: 0, y: 0 };
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getDelta(event) {
+  let delta = event.deltaY || event.wheelDelta || -event.deltaY;
+  if (delta === undefined) {
+    delta = event.detail;
+  }
+  return clamp(delta, -1, 1);
+}
 
 const Viewer = () => {
   const canvasRef = useRef(null);
-  const wheelRef = useRef(null);
+  const wheelCotainerRef = useRef(null);
+  const wheelMoveRef = useRef(null);
   const imageRef = useRef(new Image());
   const images = [img1, img2]; // test images, later use api data.
   const [transCoord, setTransCoord] = useState(defaultPosition);
@@ -18,20 +31,21 @@ const Viewer = () => {
   const [currentImg, setCurrentImg] = useState(0);
   const [isMove, setIsMove] = useState(true);
   const [isDrawRect, setIsDrawRect] = useState(false);
+  const [transOrigin, setTransOrigin] = useState(defaultPosition);
 
   const {
     handleStartMove,
     handleMove,
     handleStopMove,
     handleRotate,
-    handleZoom,
+    // handleZoom,
     handleNext,
     handlePrev,
     viewPosRef,
-    handleWheel,
+    // handleWheel,
+    // wheelRef,
   } = useMovements({
     canvasRef: canvasRef,
-    moveRef: wheelRef.current,
     useImg: imageRef.current,
     images: images,
     currentImg: currentImg,
@@ -64,13 +78,63 @@ const Viewer = () => {
     rotate: rotateValue,
   });
 
+  const handleWheelZoom = (e) => {
+    const delta = getDelta(e);
+    const mouse = {
+      x: e.pageX - wheelCotainerRef.current.offsetLeft,
+      y: e.pageY - wheelCotainerRef.current.offsetTop,
+    };
+    const offset = {
+      x: wheelCotainerRef.current.scrollLeft,
+      y: wheelCotainerRef.current.scrollTop,
+    };
+    const imageLoc = {
+      x: mouse.x + offset.x,
+      y: mouse.y + offset.y,
+    };
+    const zoomPoint = {
+      x: imageLoc.x / scaleValue,
+      y: imageLoc.y / scaleValue,
+    };
+    let newScale = clamp(scaleValue + delta * 0.1 * scaleValue, 1, 40);
+    setScaleValue(newScale);
+    const newZoomPoint = {
+      x: zoomPoint.x * newScale,
+      y: zoomPoint.y * newScale,
+    };
+    const newScroll = {
+      x: newZoomPoint.x - mouse.x,
+      y: newZoomPoint.y - mouse.y,
+    };
+    setTransOrigin({
+      x: 0,
+      y: 0,
+    });
+    wheelMoveRef.current.style.transform = `scale(${newScale})`;
+    wheelCotainerRef.current.scrollTop = newScroll.y;
+    wheelCotainerRef.current.scrollLeft = newScroll.x;
+  };
+
+  const handleZoom = (zoom) => {
+    setScaleValue((prev) => prev + zoom);
+    setTransOrigin({
+      x: 50,
+      y: 50,
+    });
+    wheelMoveRef.current.style.transform = `scale(${scaleValue})`;
+  };
+
   useEffect(() => {
     loadImage();
+    return () => {
+      wheelCotainerRef.current.removeEventListener("wheel", handleWheelZoom);
+    };
   }, [rotateValue, currentImg]);
 
   return (
     <div>
       <div
+        ref={wheelCotainerRef}
         style={{
           position: "relative",
           border: "2px solid red",
@@ -78,18 +142,20 @@ const Viewer = () => {
           height: "1080px",
           overflow: "hidden",
         }}
+        onWheel={(e) => {
+          handleWheelZoom(e);
+        }}
       >
         <div
-          ref={wheelRef}
+          // className="zoom"
+          ref={wheelMoveRef}
           style={{
             position: "relative",
-            width: "1920px",
-            height: "1080px",
-            transform: `scale(${scaleValue})`,
-            transition: "transform 0.1s ease",
-          }}
-          onWheel={(e) => {
-            handleWheel(e);
+            width: "100%",
+            height: "100%",
+            transformOrigin: `${transOrigin.x}% ${transOrigin.y}%`,
+            // transform: `scale(${scaleValue})`,
+            // transformOrigin: `${wheelPos.x * 100}% ${wheelPos.y * 100}%`,
           }}
         >
           <canvas
@@ -106,9 +172,6 @@ const Viewer = () => {
               isMove && handleStopMove(e);
               isDrawRect && drawEndRect(e);
             }}
-            // onWheel={(e) => {
-            //   handleWheel(e);
-            // }}
           ></canvas>
           <svg
             width={1920}

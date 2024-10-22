@@ -2,10 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import useCanvas from "../canvas/useCanvas";
 
 const defaultPosition = { x: 0, y: 0 };
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getDelta(event) {
+  let delta = event.deltaY || event.wheelDelta || -event.deltaY;
+  if (delta === undefined) {
+    delta = event.detail;
+  }
+  return clamp(delta, -1, 1);
+}
 
 const useMovements = ({
   canvasRef,
-  moveRef,
   useImg,
   images,
   currentImg,
@@ -17,11 +27,9 @@ const useMovements = ({
   setTransCoord,
 }) => {
   const panningRef = useRef(false);
+  const wheelPanningRef = useRef(true);
   const viewPosRef = useRef(defaultPosition);
   const startPosRef = useRef(defaultPosition);
-  const checkWheelRef = useRef(defaultPosition);
-  const wheelPanningRef = useRef(false);
-  const viewPanningRef = useRef(false);
 
   const { imageSetup, getCanvasCoordinates } = useCanvas({
     canvasRef: canvasRef,
@@ -35,6 +43,7 @@ const useMovements = ({
       y: offsetY - viewPosRef.current.y,
     };
     panningRef.current = true;
+    wheelPanningRef.current = false;
   };
 
   const handleMove = (e) => {
@@ -103,36 +112,18 @@ const useMovements = ({
   //   });
   // };
 
-  const handleWheel = (e) => {
-    const { offsetX, offsetY } = getCanvasCoordinates(e);
-
-    const wheelData = e.deltaY < 0 ? 1 : -1;
-    setScale((prevZoom) => {
-      const newZoom = prevZoom + wheelData * 0.5;
-      return Math.max(1, Math.min(newZoom, 5));
-    });
-    console.log("okay");
-    const moveset = moveRef;
-    if (moveset) {
-      const rect = moveset.getBoundingClientRect();
-      const x = (offsetX / moveset.width) * 100;
-      const y = (offsetY / moveset.height) * 100;
-      console.log({ x }, { y });
-      moveset.style.translate = `${x}% ${y}%`;
-    }
-  };
-
   const handleStopMove = () => {
     panningRef.current = false;
+    wheelPanningRef.current = true;
   };
 
   const handleRotate = (rot) => {
     setRotate((prev) => prev + rot);
   };
 
-  const handleZoom = (zoom) => {
-    setScale((prev) => prev + zoom);
-  };
+  // const handleZoom = (zoom) => {
+  //   setScale((prev) => prev + zoom);
+  // };
 
   const handleNext = () => {
     if (images.length - 1 > currentImg) {
@@ -151,12 +142,14 @@ const useMovements = ({
     handleMove,
     handleStopMove,
     handleRotate,
-    handleZoom,
+    // handleZoom,
     handleNext,
     handlePrev,
     viewPosRef,
-    handleWheel,
-    // handleWheelMove,
+    // handleWheel,
+    // wheelRef,
+    // handleWheelZoom,
+    // handleZoomMove,
   };
 };
 export default useMovements;
