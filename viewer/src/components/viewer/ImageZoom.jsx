@@ -1,82 +1,64 @@
 import React, { useState, useRef, useEffect } from "react";
 import img1 from "../../test_images/newjeans-minji.jpg";
-import "./test.css";
-
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
-function getDelta(event) {
-  let delta = event.deltaY || event.wheelDelta || -event.deltaY;
-  if (delta === undefined) {
-    delta = event.detail;
-  }
-  return clamp(delta, -1, 1);
-}
+// import "./test.css";
 
 const ImageZoom = () => {
-  const containerRef = useRef(null);
-  const imageRef = useRef(null);
-  const [scale, setScale] = useState(1);
-  const factor = 0.1;
-  const maxScale = 100;
+  const [scale, setScale] = useState(1); // 이미지 스케일 상태
+  const [origin, setOrigin] = useState({ x: 50, y: 50 }); // 초기 transform-origin
+  const imageRef = useRef(null); // 이미지 DOM 참조
 
-  useEffect(() => {
-    const container = containerRef.current;
-    const image = imageRef.current;
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const zoomSpeed = 0.001; // 줌인/줌아웃 속도
+    let newScale = scale + e.deltaY * zoomSpeed;
 
-    const handleWheel = (e) => {
-      e.preventDefault();
-      const delta = getDelta(e);
-      const mouse = {
-        x: e.pageX - container.offsetLeft,
-        y: e.pageY - container.offsetTop,
-      };
-      const offset = {
-        x: container.scrollLeft,
-        y: container.scrollTop,
-      };
-      const imageLoc = {
-        x: mouse.x + offset.x,
-        y: mouse.y + offset.y,
-      };
-      const zoomPoint = {
-        x: imageLoc.x / scale,
-        y: imageLoc.y / scale,
-      };
+    // 스케일 범위 제한 (최소 0.5배 ~ 최대 3배)
+    if (newScale < 0.5) newScale = 1;
+    if (newScale > 3) newScale = 3;
 
-      let newScale = clamp(scale + delta * factor * scale, 1, maxScale);
-      setScale(newScale);
+    const rect = imageRef.current.getBoundingClientRect();
+    const offsetX = (e.clientX - rect.left) / rect.width;
+    const offsetY = (e.clientY - rect.top) / rect.height;
 
-      const newZoomPoint = {
-        x: zoomPoint.x * newScale,
-        y: zoomPoint.y * newScale,
-      };
+    // 기존 transform-origin 값에 변동된 값 추가
+    const newOriginX =
+      origin.x + (offsetX - 0.5) * (1 - scale / newScale) * 100;
+    const newOriginY =
+      origin.y + (offsetY - 0.5) * (1 - scale / newScale) * 100;
 
-      const newScroll = {
-        x: newZoomPoint.x - mouse.x,
-        y: newZoomPoint.y - mouse.y,
-      };
+    // transform-origin 업데이트
+    setOrigin({ x: newOriginX, y: newOriginY });
+    imageRef.current.style.transformOrigin = `${newOriginX}% ${newOriginY}%`;
 
-      image.style.transform = `scale(${newScale})`;
-      container.scrollTop = newScroll.y;
-      container.scrollLeft = newScroll.x;
-    };
-
-    container.addEventListener("wheel", handleWheel);
-
-    return () => {
-      container.removeEventListener("wheel", handleWheel);
-    };
-  }, [scale]);
+    // 스케일 업데이트
+    setScale(newScale);
+    // imageRef.current.style.transform = `scale(${newScale})`;
+  };
 
   return (
-    <div className="main">
-      <div className="inner">
-        <div className="container" ref={containerRef}>
-          <div className="zoom" ref={imageRef} alt="Zoomable" />
-        </div>
-      </div>
+    <div
+      className="image-container"
+      onWheel={handleWheel}
+      style={{
+        position: "relative",
+        width: "1920px",
+        height: "1080px",
+        overflow: "hidden",
+        // cursor: dragging ? "grabbing" : "grab",
+      }}
+    >
+      <img
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          transform: `scale(${scale})`,
+        }}
+        ref={imageRef}
+        src={img1}
+        alt="Zoomable"
+        className="zoomable-image"
+      />
     </div>
   );
 };
