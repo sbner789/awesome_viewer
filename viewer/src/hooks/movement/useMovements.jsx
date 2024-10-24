@@ -51,11 +51,6 @@ const useMovements = ({
       x: clampedScale > 1 ? newTranslateX : 0,
       y: clampedScale > 1 ? newTranslateY : 0,
     });
-
-    // setTranslateOffset({
-    //   x: newTranslateX,
-    //   y: newTranslateY,
-    // });
   };
 
   const handleWheel = (e) => {
@@ -116,34 +111,6 @@ const useMovements = ({
   const handleStopMove = (e) => {
     panningRef.current = false;
   };
-
-  // const handleWheel = (e) => {
-  //   const deltaY = -e.deltaY;
-  //   const wheelScale = deltaY > 0 ? scale * 1.02 : scale / 1.02;
-
-  //   const rect = wheelRef.current.getBoundingClientRect();
-  //   const offsetX = (e.clientX - rect.left) / rect.width;
-  //   const offsetY = (e.clientY - rect.top) / rect.height;
-
-  //   if (wheelScale >= 1 && wheelScale <= 40) {
-  //     setScale(wheelScale);
-  //     wheelRef.current.style.transformOrigin = `${offsetX * 100}% ${
-  //       offsetY * 100
-  //     }%`;
-  //   }
-  // };
-
-  // const handleZoom = (zoom) => {
-  //   if (scale >= 1 && scale <= 40) {
-  //     setScale((prev) => Math.ceil(prev + zoom));
-  //   } else {
-  //     setScale(1);
-  //   }
-  // };
-
-  // const handleStopMove = () => {
-  //   panningRef.current = false;
-  // };
 
   const handleRotate = (rot) => {
     setRotate((prev) => prev + rot);

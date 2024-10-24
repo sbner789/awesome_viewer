@@ -31,7 +31,6 @@ const Viewer = () => {
     handleButtonZoom,
     translateOffset,
     viewPosRef,
-    templateRef,
   } = useMovements({
     canvasRef: canvasRef,
     useImg: imageRef.current,
@@ -81,17 +80,18 @@ const Viewer = () => {
           height: "1080px",
           overflow: "hidden",
         }}
-        onWheel={(e) => {
-          isMove && handleWheel(e);
-        }}
       >
         <div
-          ref={templateRef}
           style={{
             position: "relative",
+            width: "100%",
+            height: "100%",
             top: 0,
             left: 0,
-            border: "2px solid blue",
+            // border: "2px solid blue",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             transform: `translate(${translateOffset.x}px, ${translateOffset.y}px) scale(${scaleValue})`,
             transformOrigin: "0 0",
           }}
@@ -110,14 +110,15 @@ const Viewer = () => {
               isDrawRect && drawEndRect(e);
               isMove && handleStopMove(e);
             }}
+            onWheel={(e) => {
+              isMove && handleWheel(e);
+            }}
           ></canvas>
           <svg
             width={1920}
             height={1080}
             style={{
               position: "absolute",
-              top: 0,
-              left: 0,
               pointerEvents: "none",
               transform: `translate(${transCoord.x}px, ${transCoord.y}px) rotate(${rotateValue}deg)`,
             }}

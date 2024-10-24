@@ -27,6 +27,8 @@ const useDrawCanvas = ({
     const { offsetX, offsetY } = getCanvasCoordinates(e);
     const { offsetSvgX, offsetSvgY } = getSvgCoordinates(e);
 
+    console.log({ offsetX }, { offsetY });
+
     isDrawingRectRef.current = true;
     rectPosRef.current = {
       x: offsetX,

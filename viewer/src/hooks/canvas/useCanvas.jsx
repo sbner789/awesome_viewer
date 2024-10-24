@@ -9,32 +9,38 @@ const useCanvas = ({
   viewPosition,
   rotate,
 }) => {
-  const getCanvas = (canvasWidth, canvasHeight) => {
+  const getCanvas = (canvasW, canvasH) => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
 
-    if (canvasWidth || canvasHeight != null) {
-      canvas.width = canvasWidth;
-      canvas.height = canvasHeight;
+    if (canvasW || canvasH != null) {
+      canvas.width = canvasW;
+      canvas.height = canvasH;
     }
 
-    const imageWidth = canvas.width;
-    const imageHeight = canvas.height;
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    const imageWidth = 1280;
+    const imageHeight = 720;
 
     return {
       canvas,
       context,
       imageWidth,
       imageHeight,
+      canvasWidth,
+      canvasHeight,
     };
   };
 
   const imageSetup = ({ viewX, viewY, rotate, img, canvasW, canvasH }) => {
-    const { context, imageWidth, imageHeight } = getCanvas(canvasW, canvasH);
-    context.clearRect(0, 0, imageWidth, imageHeight);
+    const { context, imageWidth, imageHeight, canvasWidth, canvasHeight } =
+      getCanvas(canvasW, canvasH);
+    context.clearRect(0, 0, canvasWidth, canvasHeight);
     context.save();
     context.setTransform(1, 0, 0, 1, viewX, viewY);
-    context.translate(imageWidth / 2, imageHeight / 2);
+    context.translate(canvasWidth / 2, canvasHeight / 2);
     context.rotate((rotate * Math.PI) / 180);
     context.drawImage(
       img,
