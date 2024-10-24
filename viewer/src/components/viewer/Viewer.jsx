@@ -10,6 +10,7 @@ const defaultPosition = { x: 0, y: 0 };
 const Viewer = () => {
   const canvasRef = useRef(null);
   const imageRef = useRef(new Image());
+  // const viewPosRef = useRef(defaultPosition);
   const images = [img1, img2]; // test images, later use api data.
   const [transCoord, setTransCoord] = useState(defaultPosition);
   const [scaleValue, setScaleValue] = useState(1);
@@ -23,14 +24,14 @@ const Viewer = () => {
     handleMove,
     handleStopMove,
     handleRotate,
-    // handleZoom,
     handleNext,
     handlePrev,
-    viewPosRef,
     handleWheel,
     wheelRef,
-    translateRef,
     handleButtonZoom,
+    translateOffset,
+    viewPosRef,
+    templateRef,
   } = useMovements({
     canvasRef: canvasRef,
     useImg: imageRef.current,
@@ -81,34 +82,34 @@ const Viewer = () => {
           overflow: "hidden",
         }}
         onWheel={(e) => {
-          handleWheel(e);
+          isMove && handleWheel(e);
         }}
       >
         <div
+          ref={templateRef}
           style={{
             position: "relative",
+            top: 0,
+            left: 0,
             border: "2px solid blue",
-            transform: `translate(${translateRef.current.x}px, ${translateRef.current.y}px) scale(${scaleValue})`,
+            transform: `translate(${translateOffset.x}px, ${translateOffset.y}px) scale(${scaleValue})`,
             transformOrigin: "0 0",
           }}
         >
           <canvas
             ref={canvasRef}
             onMouseDown={(e) => {
-              isMove && handleStartMove(e);
               isDrawRect && drawStartRect(e);
+              isMove && handleStartMove(e);
             }}
             onMouseMove={(e) => {
-              isMove && handleMove(e);
               isDrawRect && drawRect(e);
+              isMove && handleMove(e);
             }}
             onMouseUp={(e) => {
-              isMove && handleStopMove(e);
               isDrawRect && drawEndRect(e);
+              isMove && handleStopMove(e);
             }}
-            // onWheel={(e) => {
-            //   handleWheel(e);
-            // }}
           ></canvas>
           <svg
             width={1920}

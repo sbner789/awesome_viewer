@@ -16,34 +16,83 @@ const useMovements = ({
   setTransCoord,
 }) => {
   const panningRef = useRef(false);
+  const wheelRef = useRef(null);
   const viewPosRef = useRef(defaultPosition);
   const startPosRef = useRef(defaultPosition);
-  const wheelRef = useRef(null);
-  const translateRef = useRef(defaultPosition);
   const lastMousePosRef = useRef(defaultPosition);
-
-  const zoomIntensity = 0.1;
-  const maxScale = 40;
-  const minScale = 1;
+  const templateRef = useRef(null);
+  const [translateOffset, setTranslateOffset] = useState(defaultPosition);
+  // const [startDragOffset, setStartDragOffset] = useState(defaultPosition);
 
   const { imageSetup, getCanvasCoordinates } = useCanvas({
     canvasRef: canvasRef,
     scale: scale,
   });
 
+  const zoomIntensity = 0.05;
+  const maxScale = 40;
+  const minScale = 1;
+
+  const handleZoom = (direction, mouseX, mouseY) => {
+    const newScale =
+      direction === "in" ? scale + zoomIntensity : scale - zoomIntensity;
+    const clampedScale = Math.min(Math.max(newScale, minScale), maxScale);
+
+    const scaleRatio = clampedScale / scale;
+
+    const newTranslateX =
+      translateOffset.x - (mouseX - translateOffset.x) * (scaleRatio - 1);
+    const newTranslateY =
+      translateOffset.y - (mouseY - translateOffset.y) * (scaleRatio - 1);
+
+    setScale(clampedScale);
+
+    setTranslateOffset({
+      x: clampedScale > 1 ? newTranslateX : 0,
+      y: clampedScale > 1 ? newTranslateY : 0,
+    });
+
+    // setTranslateOffset({
+    //   x: newTranslateX,
+    //   y: newTranslateY,
+    // });
+  };
+
+  const handleWheel = (e) => {
+    const container = wheelRef.current;
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    lastMousePosRef.current = {
+      x: mouseX,
+      y: mouseY,
+    };
+    handleZoom(e.deltaY < 0 ? "in" : "out", mouseX, mouseY);
+  };
+
+  const handleButtonZoom = (direction) => {
+    const container = wheelRef.current;
+    const rect = container.getBoundingClientRect();
+
+    const mouseX = lastMousePosRef.current.x || rect.width / 2;
+    const mouseY = lastMousePosRef.current.y || rect.height / 2;
+    handleZoom(direction, mouseX, mouseY);
+  };
+
   const handleStartMove = (e) => {
+    panningRef.current = true;
+
     const { offsetX, offsetY } = getCanvasCoordinates(e);
 
     startPosRef.current = {
       x: offsetX - viewPosRef.current.x,
       y: offsetY - viewPosRef.current.y,
     };
-    panningRef.current = true;
   };
 
   const handleMove = (e) => {
-    const { offsetX, offsetY } = getCanvasCoordinates(e);
     if (!panningRef.current) return;
+    const { offsetX, offsetY } = getCanvasCoordinates(e);
 
     viewPosRef.current = {
       x: offsetX - startPosRef.current.x,
@@ -64,53 +113,8 @@ const useMovements = ({
     });
   };
 
-  const handleZoom = (direction, mouseX, mouseY) => {
-    const newScale =
-      direction === "in" ? scale + zoomIntensity : scale - zoomIntensity;
-    const clampedScale = Math.min(Math.max(newScale, minScale), maxScale);
-
-    console.log({ clampedScale });
-
-    const scaleRatio = clampedScale / scale;
-
-    const newTranslateX =
-      translateRef.current.x -
-      (mouseX - translateRef.current.x) * (scaleRatio - 1);
-    const newTranslateY =
-      translateRef.current.y -
-      (mouseY - translateRef.current.y) * (scaleRatio - 1);
-
-    setScale(clampedScale);
-    translateRef.current = {
-      x: clampedScale > 1 ? newTranslateX : 0,
-      y: clampedScale > 1 ? newTranslateY : 0,
-    };
-  };
-
-  const handleWheel = (e) => {
-    const container = wheelRef.current;
-    const rect = container.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    lastMousePosRef.current = {
-      x: mouseX,
-      y: mouseY,
-    };
-
-    handleZoom(
-      e.deltaY < 0 ? "in" : "out",
-      lastMousePosRef.current.x,
-      lastMousePosRef.current.y
-    );
-  };
-
-  const handleButtonZoom = (direction) => {
-    const container = wheelRef.current;
-    const rect = container.getBoundingClientRect();
-
-    const mouseX = lastMousePosRef.current.x || rect.width / 2;
-    const mouseY = lastMousePosRef.current.y || rect.height / 2;
-    handleZoom(direction, mouseX, mouseY);
+  const handleStopMove = (e) => {
+    panningRef.current = false;
   };
 
   // const handleWheel = (e) => {
@@ -137,9 +141,9 @@ const useMovements = ({
   //   }
   // };
 
-  const handleStopMove = () => {
-    panningRef.current = false;
-  };
+  // const handleStopMove = () => {
+  //   panningRef.current = false;
+  // };
 
   const handleRotate = (rot) => {
     setRotate((prev) => prev + rot);
@@ -162,14 +166,14 @@ const useMovements = ({
     handleMove,
     handleStopMove,
     handleRotate,
-    handleZoom,
     handleNext,
     handlePrev,
-    viewPosRef,
     handleWheel,
     wheelRef,
-    translateRef,
     handleButtonZoom,
+    translateOffset,
+    viewPosRef,
+    templateRef,
   };
 };
 export default useMovements;

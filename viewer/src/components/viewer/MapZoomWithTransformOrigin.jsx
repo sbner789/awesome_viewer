@@ -6,8 +6,8 @@ const MapZoomWithTransformOrigin = () => {
   const imgRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
-  //   const [dragging, setDragging] = useState(false);
-  //   const [startDragOffset, setStartDragOffset] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const [startDragOffset, setStartDragOffset] = useState({ x: 0, y: 0 });
 
   const zoomIntensity = 0.1;
   const maxScale = 3;
@@ -57,38 +57,38 @@ const MapZoomWithTransformOrigin = () => {
     handleZoom(direction, mouseX, mouseY);
   };
 
-  //   // 마우스로 드래그 시작할 때 호출되는 함수
-  //   const handleMouseDown = (e) => {
-  //     setDragging(true);
-  //     setStartDragOffset({
-  //       x: e.clientX - translate.x,
-  //       y: e.clientY - translate.y,
-  //     });
-  //   };
+  // 마우스로 드래그 시작할 때 호출되는 함수
+  const handleMouseDown = (e) => {
+    setDragging(true);
+    setStartDragOffset({
+      x: e.clientX - translate.x,
+      y: e.clientY - translate.y,
+    });
+  };
 
-  //   // 드래그하는 동안 호출되는 함수
-  //   const handleMouseMove = (e) => {
-  //     if (!dragging) return;
+  // 드래그하는 동안 호출되는 함수
+  const handleMouseMove = (e) => {
+    if (!dragging) return;
 
-  //     setTranslate({
-  //       x: e.clientX - startDragOffset.x,
-  //       y: e.clientY - startDragOffset.y,
-  //     });
-  //   };
+    setTranslate({
+      x: e.clientX - startDragOffset.x,
+      y: e.clientY - startDragOffset.y,
+    });
+  };
 
-  //   // 드래그가 끝났을 때 호출되는 함수
-  //   const handleMouseUp = () => {
-  //     setDragging(false);
-  //   };
+  // 드래그가 끝났을 때 호출되는 함수
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
 
   return (
     <div
       ref={containerRef}
       onWheel={handleWheel}
-      //   onMouseDown={handleMouseDown}
-      //   onMouseMove={handleMouseMove}
-      //   onMouseUp={handleMouseUp}
-      //   onMouseLeave={handleMouseUp}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
       style={{
         position: "relative",
         width: "100%",
