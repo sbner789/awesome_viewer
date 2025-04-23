@@ -55,8 +55,8 @@ const Viewer = () => {
 
   const { loadImage } = useCanvas({
     canvasRef: canvasRef,
-    width: 1920,
-    height: 1080,
+    width: 1280,
+    height: 720,
     useImg: imageRef.current,
     images: images,
     currentImg: currentImg,
@@ -88,7 +88,7 @@ const Viewer = () => {
             height: "100%",
             top: 0,
             left: 0,
-            // border: "2px solid blue",
+            border: "2px solid blue",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -115,12 +115,12 @@ const Viewer = () => {
             }}
           ></canvas>
           <svg
-            width={1920}
-            height={1080}
+            width={1280}
+            height={720}
             style={{
               position: "absolute",
               pointerEvents: "none",
-              transform: `translate(${transCoord.x}px, ${transCoord.y}px) rotate(${rotateValue}deg)`,
+              transform: `translate(${transCoord.x}px, ${transCoord.y}px) rotate(${rotateValue}deg`,
             }}
           >
             {saveRect.map((el) => {

@@ -90,8 +90,10 @@ const useDrawCanvas = ({
       const newSvgRect = (
         <rect
           key={saveRect.length}
-          x={rectX - viewPosition.x}
-          y={rectY - viewPosition.y}
+          // x={rectX - viewPosition.x}
+          // y={rectY - viewPosition.y}
+          x={rectX}
+          y={rectY}
           width={Math.abs(rectWidth)}
           height={Math.abs(rectHeight)}
           stroke="red"

@@ -112,6 +112,16 @@ const useMovements = ({
     panningRef.current = false;
   };
 
+  const handleTest = (e) => {
+    const container = useImg;
+    const rect = container.getBoundingClientRect();
+
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    console.log({ mouseX }, { mouseY }, "hello");
+  };
+
   const handleRotate = (rot) => {
     setRotate((prev) => prev + rot);
   };
@@ -141,6 +151,7 @@ const useMovements = ({
     translateOffset,
     viewPosRef,
     templateRef,
+    handleTest,
   };
 };
 export default useMovements;

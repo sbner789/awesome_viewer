@@ -21,8 +21,8 @@ const useCanvas = ({
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
-    const imageWidth = 1280;
-    const imageHeight = 720;
+    const imageWidth = canvasWidth;
+    const imageHeight = canvasHeight;
 
     return {
       canvas,
